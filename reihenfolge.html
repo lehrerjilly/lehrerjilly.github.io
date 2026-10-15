@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Schritt für Schritt</title>
+<style>
+  :root {
+    --bg: #fff8ee;
+    --text: #2b2b2b;
+    --karte: #ffffff;
+    --rand: #d9cbb5;
+    --blau: #3a7bd5;
+    --gruen: #2e9e5b;
+    --rot: #d64545;
+    --gelb: #ffe38a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .oben {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; max-width: 1000px; margin: 0 auto;
+  }
+  .zurueck {
+    font-size: 20px; text-decoration: none; color: var(--blau);
+    background: #fff; border-radius: 14px; padding: 10px 16px; border: 2px solid var(--blau);
+  }
+  .sterne { font-size: 28px; }
+  h1 { text-align: center; font-size: 32px; margin: 4px 16px; }
+  .auftrag { text-align: center; font-size: 22px; margin: 4px 16px 16px; }
+  .wrap {
+    max-width: 1000px; margin: 0 auto; padding: 0 16px 24px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  }
+  @media (max-width: 700px) { .wrap { grid-template-columns: 1fr; } }
+  .bereich {
+    background: rgba(255,255,255,.6); border: 3px dashed var(--rand);
+    border-radius: 20px; padding: 12px;
+  }
+  .bereich h2 { font-size: 22px; margin: 4px 4px 12px; }
+  .karte {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--karte); border: 3px solid var(--rand); border-radius: 16px;
+    padding: 14px; margin-bottom: 10px; font-size: 22px; min-height: 68px;
+    cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.1);
+  }
+  .karte:active { transform: translateY(2px); box-shadow: none; }
+  .karte .emoji { font-size: 34px; }
+  .karte .text { flex: 1; }
+  .karte .nr {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--blau); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
+  }
+  .lautsprecher {
+    font-size: 26px; background: none; border: none; padding: 6px; cursor: pointer;
+  }
+  .leer {
+    border: 3px dashed var(--rand); border-radius: 16px; min-height: 68px;
+    margin-bottom: 10px; display: flex; align-items: center; padding: 0 14px;
+    font-size: 22px; color: #b5a68e;
+  }
+  .richtig { border-color: var(--gruen); background: #e6f6ec; }
+  .falsch { border-color: var(--rot); background: #fbe9e9; }
+  .knoepfe { text-align: center; padding: 0 16px 32px; }
+  .knopf {
+    font-size: 26px; font-weight: 700; color: #fff; border: none; border-radius: 18px;
+    padding: 16px 36px; margin: 6px; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.15);
+  }
+  .knopf:active { transform: translateY(3px); box-shadow: none; }
+  .knopf:disabled { opacity: .4; }
+  .pruefen { background: var(--gruen); }
+  .weiter { background: var(--blau); }
+  .meldung { text-align: center; font-size: 28px; font-weight: 700; min-height: 40px; margin: 0 16px 8px; }
+  .fertig { text-align: center; padding: 40px 16px; }
+  .fertig .gross { font-size: 96px; }
+  .fertig p { font-size: 28px; }
+  .versteckt { display: none; }
+</style>
+</head>
+<body>
+
+<div class="oben">
+  <a class="zurueck" href="index.html">⬅ Zurück</a>
+  <div class="sterne" id="sterne"></div>
+</div>
+
+<div id="spiel">
+  <h1 id="titel"></h1>
+  <p class="auftrag">Tippe die Schritte in der richtigen Reihenfolge an.</p>
+
+  <div class="wrap">
+    <div class="bereich">
+      <h2>🃏 Schritte</h2>
+      <div id="stapel"></div>
+    </div>
+    <div class="bereich">
+      <h2>📋 Mein Algorithmus</h2>
+      <div id="loesung"></div>
+    </div>
+  </div>
+
+  <div class="meldung" id="meldung"></div>
+  <div class="knoepfe">
+    <button class="knopf pruefen" id="pruefen" disabled>✔ Prüfen</button>
+    <button class="knopf weiter versteckt" id="weiter">Weiter ➡</button>
+  </div>
+</div>
+
+<div class="fertig versteckt" id="fertig">
+  <div class="gross">🏆</div>
+  <p>Super gemacht!<br>Du hast alle Algorithmen geschafft.</p>
+  <button class="knopf weiter" onclick="neustart()">🔄 Nochmal spielen</button>
+</div>
+
+<script>
+// ====== HIER KANNST DU EIGENE AUFGABEN EINTRAGEN ======
+// Jede Aufgabe: ein Titel und die Schritte in der RICHTIGEN Reihenfolge.
+const AUFGABEN = [
+  {
+    titel: "🪥 Zähne putzen",
+    schritte: [
+      ["🪥", "Zahnbürste nehmen"],
+      ["🧴", "Zahnpasta auf die Bürste"],
+      ["😁", "Zähne putzen"],
+      ["💧", "Mund ausspülen"]
+    ]
+  },
+  {
+    titel: "🥪 Pausenbrot machen",
+    schritte: [
+      ["🍞", "Brot auf den Teller legen"],
+      ["🔪", "Messer nehmen"],
+      ["🧈", "Butter auf das Brot streichen"],
+      ["🧀", "Käse auf das Brot legen"],
+      ["🥪", "Brot zuklappen"]
+    ]
+  },
+  {
+    titel: "🧼 Hände waschen",
+    schritte: [
+      ["🚰", "Wasser anmachen"],
+      ["💦", "Hände nass machen"],
+      ["🧼", "Seife nehmen"],
+      ["👐", "Hände gut reiben"],
+      ["🚿", "Seife abspülen"],
+      ["🚰", "Wasser ausmachen"],
+      ["🧻", "Hände abtrocknen"]
+    ]
+  }
+];
+// ======================================================
+
+let runde = 0;
+let stapel = [];   // noch nicht gewählte Schritte (Index in der Aufgabe)
+let loesung = [];  // gewählte Schritte
+let gepruft = false;
+
+const $ = id => document.getElementById(id);
+
+function mischen(liste) {
+  const a = liste.slice();
+  do {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+  } while (a.every((v, i) => v === i)); // nie schon richtig sortiert anzeigen
+  return a;
+}
+
+function vorlesen(text) {
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "de-DE";
+    u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+function karte(idx, nr, klasse) {
+  const [emoji, text] = AUFGABEN[runde].schritte[idx];
+  const d = document.createElement("div");
+  d.className = "karte" + (klasse ? " " + klasse : "");
+  d.innerHTML =
+    (nr ? `<span class="nr">${nr}</span>` : "") +
+    `<span class="emoji">${emoji}</span><span class="text">${text}</span>` +
+    `<button class="lautsprecher" aria-label="Vorlesen">🔊</button>`;
+  d.querySelector(".lautsprecher").addEventListener("click", e => {
+    e.stopPropagation();
+    vorlesen(text);
+  });
+  return d;
+}
+
+function zeichnen() {
+  const aufgabe = AUFGABEN[runde];
+  $("titel").textContent = aufgabe.titel;
+  $("sterne").textContent = "⭐".repeat(runde) + "☆".repeat(AUFGABEN.length - runde);
+
+  const s = $("stapel");
+  s.innerHTML = "";
+  stapel.forEach(idx => {
+    const k = karte(idx);
+    k.addEventListener("click", () => {
+      if (gepruft) return;
+      stapel = stapel.filter(x => x !== idx);
+      loesung.push(idx);
+      $("meldung").textContent = "";
+      zeichnen();
+    });
+    s.appendChild(k);
+  });
+
+  const l = $("loesung");
+  l.innerHTML = "";
+  loesung.forEach((idx, pos) => {
+    let klasse = "";
+    if (gepruft) klasse = idx === pos ? "richtig" : "falsch";
+    const k = karte(idx, pos + 1, klasse);
+    k.addEventListener("click", () => {
+      if (gepruft) return;
+      loesung.splice(pos, 1);
+      stapel.push(idx);
+      $("meldung").textContent = "";
+      zeichnen();
+    });
+    l.appendChild(k);
+  });
+  for (let i = loesung.length; i < aufgabe.schritte.length; i++) {
+    const e = document.createElement("div");
+    e.className = "leer";
+    e.textContent = (i + 1) + ".";
+    l.appendChild(e);
+  }
+
+  $("pruefen").disabled = stapel.length > 0;
+}
+
+function pruefen() {
+  if (gepruft) { // "Nochmal versuchen": falsche Karten zurücklegen
+    const behalten = [];
+    loesung.forEach((idx, pos) => {
+      if (idx === pos && behalten.length === pos) behalten.push(idx);
+      else stapel.push(idx);
+    });
+    loesung = behalten;
+    gepruft = false;
+    $("pruefen").textContent = "✔ Prüfen";
+    $("meldung").textContent = "";
+    zeichnen();
+    return;
+  }
+  gepruft = true;
+  const alleRichtig = loesung.every((idx, pos) => idx === pos);
+  zeichnen();
+  if (alleRichtig) {
+    $("meldung").textContent = "🎉 Richtig! Toller Algorithmus!";
+    $("meldung").style.color = "var(--gruen)";
+    vorlesen("Richtig! Toller Algorithmus!");
+    $("pruefen").classList.add("versteckt");
+    $("weiter").classList.remove("versteckt");
+  } else {
+    $("meldung").textContent = "🤔 Fast! Die roten Karten stimmen noch nicht.";
+    $("meldung").style.color = "var(--rot)";
+    $("pruefen").textContent = "🔄 Nochmal versuchen";
+    $("pruefen").disabled = false;
+  }
+}
+
+function startRunde() {
+  gepruft = false;
+  loesung = [];
+  stapel = mischen(AUFGABEN[runde].schritte.map((_, i) => i));
+  $("meldung").textContent = "";
+  $("pruefen").textContent = "✔ Prüfen";
+  $("pruefen").classList.remove("versteckt");
+  $("weiter").classList.add("versteckt");
+  zeichnen();
+}
+
+function weiter() {
+  runde++;
+  if (runde >= AUFGABEN.length) {
+    $("spiel").classList.add("versteckt");
+    $("fertig").classList.remove("versteckt");
+    $("sterne").textContent = "⭐".repeat(AUFGABEN.length);
+    vorlesen("Super gemacht! Du hast alle Algorithmen geschafft.");
+    return;
+  }
+  startRunde();
+}
+
+function neustart() {
+  runde = 0;
+  $("fertig").classList.add("versteckt");
+  $("spiel").classList.remove("versteckt");
+  startRunde();
+}
+
+$("pruefen").addEventListener("click", pruefen);
+$("weiter").addEventListener("click", weiter);
+startRunde();
+</script>
+</body>
+</html>

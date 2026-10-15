@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Übungen">
+<title>Informatik-Übungen</title>
+<style>
+  :root {
+    --bg: #fff8ee;
+    --text: #2b2b2b;
+    --card: #ffffff;
+    --blau: #3a7bd5;
+    --gruen: #2e9e5b;
+    --orange: #f08a24;
+    --lila: #8a5cd1;
+    --schatten: 0 4px 0 rgba(0,0,0,.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-tap-highlight-color: transparent;
+  }
+  header {
+    text-align: center;
+    padding: 32px 16px 16px;
+  }
+  header .logo { font-size: 64px; line-height: 1; }
+  h1 { font-size: 36px; margin: 12px 0 4px; }
+  header p { font-size: 22px; margin: 0; }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .kachel {
+    display: block;
+    text-decoration: none;
+    color: #fff;
+    border-radius: 24px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: var(--schatten);
+    transition: transform .1s;
+  }
+  .kachel:active { transform: translateY(3px); box-shadow: none; }
+  .kachel .icon { font-size: 64px; display: block; }
+  .kachel .name { font-size: 28px; font-weight: 700; display: block; margin-top: 8px; }
+  .kachel .info { font-size: 18px; display: block; margin-top: 4px; opacity: .95; }
+  .blau { background: var(--blau); }
+  .gruen { background: var(--gruen); }
+  .orange { background: var(--orange); }
+  .lila { background: var(--lila); }
+  .bald { opacity: .45; pointer-events: none; }
+  footer { text-align: center; padding: 32px 16px; font-size: 16px; color: #777; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🧠</div>
+  <h1>Informatik-Übungen</h1>
+  <p>Tippe auf eine Übung!</p>
+</header>
+
+<main>
+  <a class="kachel blau" href="reihenfolge.html">
+    <span class="icon">🪜</span>
+    <span class="name">Schritt für Schritt</span>
+    <span class="info">Bring die Schritte in die richtige Reihenfolge</span>
+  </a>
+
+  <!-- Platz für weitere Übungen: einfach eine Kachel kopieren und den Link ändern -->
+  <div class="kachel gruen bald">
+    <span class="icon">🤖</span>
+    <span class="name">Roboter steuern</span>
+    <span class="info">kommt bald</span>
+  </div>
+  <div class="kachel orange bald">
+    <span class="icon">🔁</span>
+    <span class="name">Wiederholen</span>
+    <span class="info">kommt bald</span>
+  </div>
+</main>
+
+<footer>Viel Spaß beim Üben! 😊</footer>
+</body>
+</html>
