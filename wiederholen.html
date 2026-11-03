@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Wiederholen</title>
+<link rel="stylesheet" href="roboter.css">
+</head>
+<body>
+<div id="app"></div>
+<script>
+const MODUS = "wiederholen";
+const TITEL = "🔁 Wiederholen";
+
+// ====== HIER KANNST DU EIGENE LEVEL EINTRAGEN ======
+// R = Roboter, Z = Batterie, # = Stein, D = Diamant, . = frei
+// stufe: 1 = leicht, 2 = mittel, 3 = schwer
+// max: so viele Karten dürfen höchstens benutzt werden
+// block: true = der Muster-Block (mehrere Pfeile wiederholen) ist erlaubt
+const LEVEL = [
+  { stufe: 1, max: 1, karte: [
+    ".......",
+    "R.....Z",
+    "......."] },
+  { stufe: 1, max: 2, karte: [
+    "R....",
+    ".....",
+    "....Z"] },
+  { stufe: 2, max: 3, karte: [
+    "R...#..",
+    "....#..",
+    ".......",
+    "....#.Z"] },
+  { stufe: 2, max: 4, karte: [
+    "R....#",
+    ".....#",
+    ".....D",
+    "....#Z"] },
+  { stufe: 2, max: 5, tipp: "Das ist eine Schlange!", karte: [
+    "R....",
+    "####.",
+    ".....",
+    ".####",
+    "....Z"] },
+  { stufe: 3, max: 1, block: true, tipp: "Eine Treppe! Welches Muster wiederholt sich?", karte: [
+    "R.###",
+    "#..##",
+    "##..#",
+    "###..",
+    "####Z"] },
+  { stufe: 3, max: 3, block: true, karte: [
+    "R..###",
+    "##..##",
+    "###..#",
+    "####..",
+    "#####.",
+    "#####Z"] },
+  { stufe: 3, max: 1, block: true, tipp: "Schau genau: Welches Muster wiederholt sich?", karte: [
+    "R.D####",
+    "##..D##",
+    "####..D",
+    "######Z"] }
+];
+</script>
+<script src="roboter.js"></script>
+</body>
+</html>

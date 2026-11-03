@@ -1,0 +1,211 @@
+/* Roboter-Übungen: gleiche Farben wie die Startseite und "Schritt für Schritt" */
+:root {
+  --bg: #fff8ee;
+  --text: #2b2b2b;
+  --karte: #ffffff;
+  --rand: #d9cbb5;
+  --blau: #3a7bd5;
+  --gruen: #2e9e5b;
+  --rot: #d64545;
+  --orange: #f08a24;
+  --lila: #8a5cd1;
+  --boden1: #f6eedf;
+  --boden2: #efe4cf;
+  --stein: #cdbfa6;
+  --zielfeld: #fff0b3;
+  --spur: #dcebfb;
+  --akzent: var(--gruen);
+  color-scheme: light;
+}
+.modus-wiederholen { --akzent: var(--orange); }
+.modus-fehler { --akzent: var(--lila); }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+button { font-family: inherit; color: inherit; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--blau); outline-offset: 3px; }
+
+.oben {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 16px; max-width: 1060px; margin: 0 auto;
+}
+.zurueck, .klein {
+  font-size: 20px; text-decoration: none; color: var(--blau); cursor: pointer;
+  background: #fff; border-radius: 14px; padding: 10px 16px; border: 2px solid var(--blau);
+}
+.sterne { font-size: 24px; font-weight: 700; }
+
+h1 { text-align: center; font-size: 32px; margin: 4px 16px; text-wrap: balance; }
+.auftrag { text-align: center; font-size: 21px; line-height: 1.4; margin: 6px auto 16px; max-width: 760px; padding: 0 16px; }
+.lautsprecher { font-size: 26px; background: none; border: none; padding: 4px; cursor: pointer; vertical-align: middle; }
+
+/* ---------- Level-Auswahl ---------- */
+.legende { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 0 16px 16px; font-size: 18px; }
+.levelgitter {
+  max-width: 760px; margin: 0 auto; padding: 0 16px 32px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px;
+}
+.levelknopf {
+  background: #fff; border: 3px solid var(--rand); border-radius: 20px; padding: 16px 10px;
+  cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.1); text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.levelknopf:active { transform: translateY(3px); box-shadow: none; }
+.levelknopf .nr { font-size: 40px; font-weight: 800; line-height: 1; }
+.levelknopf .stern { font-size: 26px; min-height: 30px; }
+.levelknopf.geschafft { border-color: var(--gruen); background: #eef8f1; }
+.schild { display: inline-block; font-size: 16px; font-weight: 700; padding: 4px 12px; border-radius: 99px; color: #fff; }
+.stufe1 { background: var(--gruen); }
+.stufe2 { background: var(--orange); }
+.stufe3 { background: var(--rot); }
+
+/* ---------- Spiel ---------- */
+.kopf { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 14px; padding: 0 16px; }
+.kopf h1 { margin: 0; }
+.spielflaeche {
+  max-width: 1060px; margin: 0 auto; padding: 0 16px;
+  display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start;
+}
+@media (min-width: 860px) { .spielflaeche { grid-template-columns: auto 1fr; } }
+.feldbox {
+  background: rgba(255,255,255,.6); border: 3px dashed var(--rand); border-radius: 20px;
+  padding: 14px; display: flex; justify-content: center;
+}
+.feld {
+  --z: min(64px, calc((100vw - 76px) / var(--spalten)));
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--spalten), var(--z));
+  grid-auto-rows: var(--z);
+  border-radius: 12px; overflow: hidden; border: 3px solid var(--rand);
+}
+.zelle {
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--z) * .62); background: var(--boden1);
+  transition: background .3s;
+}
+.zelle.dunkel { background: var(--boden2); }
+.zelle.stein { background: var(--stein); }
+.zelle.ziel { background: var(--zielfeld); }
+.zelle.spur { background: var(--spur); }
+.roboter {
+  position: absolute; top: 0; left: 0; width: var(--z); height: var(--z);
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--z) * .72);
+  transform: translate(calc(var(--c) * var(--z)), calc(var(--r) * var(--z)));
+  transition: transform .35s ease-in-out;
+  filter: drop-shadow(0 3px 0 rgba(0,0,0,.18));
+}
+.roboter.wackeln { animation: wackeln .45s; }
+@keyframes wackeln {
+  0%,100% { margin-left: 0; } 20% { margin-left: -8px; } 40% { margin-left: 8px; }
+  60% { margin-left: -6px; } 80% { margin-left: 6px; }
+}
+.roboter.jubel { animation: jubel .6s 2; }
+@keyframes jubel { 50% { margin-top: -14px; } }
+
+.steuer { display: grid; gap: 16px; min-width: 0; }
+.bereich {
+  background: rgba(255,255,255,.6); border: 3px dashed var(--rand);
+  border-radius: 20px; padding: 12px;
+}
+.bereich h2 { font-size: 21px; margin: 2px 4px 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.zaehler { font-size: 17px; font-weight: 700; background: #fff; border: 2px solid var(--rand); border-radius: 99px; padding: 2px 12px; }
+.zaehler.zuviel { border-color: var(--rot); color: var(--rot); background: #fbe9e9; }
+
+.programm { display: flex; flex-wrap: wrap; gap: 8px; min-height: 64px; align-items: flex-start; }
+.programm .leerhinweis { font-size: 19px; color: #9c8d74; padding: 16px 6px; }
+.prog-karte {
+  position: relative; display: inline-flex; align-items: center; gap: 4px;
+  min-width: 58px; height: 58px; padding: 0 8px; justify-content: center;
+  background: #fff; border: 3px solid var(--rand); border-radius: 14px;
+  font-size: 30px; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.1);
+}
+.prog-karte:active { transform: translateY(2px); box-shadow: none; }
+.prog-karte .nr {
+  position: absolute; top: -9px; left: -7px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--akzent); color: #fff; font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.anzahl {
+  font-size: 20px; font-weight: 800; background: var(--orange); color: #fff;
+  border-radius: 10px; padding: 2px 7px; border: none; cursor: pointer;
+}
+.prog-karte.block { background: #fff4e6; border-color: var(--orange); padding: 0 6px; gap: 6px; height: auto; min-height: 58px; flex-wrap: wrap; }
+.prog-karte.block.offen { border-style: dashed; }
+.block .klammer { font-size: 22px; color: var(--orange); font-weight: 800; }
+.chip {
+  font-size: 26px; background: #fff; border: 2px solid var(--rand); border-radius: 10px;
+  width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0;
+}
+.aktiv { border-color: var(--blau) !important; background: #e3eefc !important; }
+.kaputt { border-color: var(--rot) !important; background: #fbe9e9 !important; }
+
+/* Pfeiltasten */
+.palette { display: grid; gap: 12px; justify-items: center; }
+.palette .titel { font-size: 18px; font-weight: 700; justify-self: start; margin-left: 4px; }
+.steuerkreuz { display: grid; grid-template-columns: repeat(3, 72px); grid-template-rows: repeat(3, 72px); gap: 6px; }
+.pfeiltaste {
+  font-size: 40px; border-radius: 18px; border: 3px solid var(--akzent); background: #fff;
+  cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.12); padding: 0;
+}
+.pfeiltaste:active { transform: translateY(3px); box-shadow: none; }
+.pfeiltaste.O { grid-area: 1 / 2; } .pfeiltaste.L { grid-area: 2 / 1; }
+.pfeiltaste.R { grid-area: 2 / 3; } .pfeiltaste.U { grid-area: 3 / 2; }
+.mitte { grid-area: 2 / 2; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+.zahlen { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.zahl {
+  font-size: 22px; font-weight: 800; min-width: 56px; height: 52px; border-radius: 14px;
+  border: 3px solid var(--rand); background: #fff; cursor: pointer;
+}
+.zahl.gewaehlt { background: var(--orange); border-color: var(--orange); color: #fff; }
+.zeile { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.nebenknopf {
+  font-size: 18px; font-weight: 700; border-radius: 14px; padding: 10px 14px; cursor: pointer;
+  background: #fff; border: 2px solid var(--rand);
+}
+.blockknopf { border-color: var(--orange); color: #b35d0c; }
+.blockknopf.an { background: var(--orange); color: #fff; }
+.hinweis { font-size: 18px; line-height: 1.4; text-align: center; margin: 0; max-width: 420px; }
+
+.meldung { text-align: center; font-size: 26px; font-weight: 700; min-height: 40px; margin: 16px 16px 8px; text-wrap: balance; }
+.meldung.gut { color: var(--gruen); }
+.meldung.schlecht { color: var(--rot); }
+.knoepfe { text-align: center; padding: 0 16px 32px; }
+.knopf {
+  font-size: 24px; font-weight: 700; color: #fff; border: none; border-radius: 18px;
+  padding: 14px 30px; margin: 6px; cursor: pointer; box-shadow: 0 4px 0 rgba(0,0,0,.15);
+}
+.knopf:active { transform: translateY(3px); box-shadow: none; }
+.knopf:disabled { opacity: .4; }
+.knopf.start { background: var(--gruen); }
+.knopf.neu { background: #8a7a62; }
+.knopf.weiter { background: var(--blau); }
+
+/* Auswahlfenster beim Reparieren */
+.picker {
+  position: fixed; inset: 0; background: rgba(40,30,20,.45); z-index: 20;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.pickerbox {
+  background: var(--bg); border-radius: 24px; padding: 20px; width: 100%; max-width: 420px;
+  display: grid; gap: 16px; justify-items: center; box-shadow: 0 8px 0 rgba(0,0,0,.15);
+}
+.pickerbox h2 { margin: 0; font-size: 24px; }
+.pickerbox .pfeiltaste { width: 72px; height: 72px; }
+.pickerbox .pfeiltaste.gewaehlt { background: var(--lila); border-color: var(--lila); }
+
+@media (prefers-reduced-motion: reduce) {
+  .roboter { transition: none; }
+  .roboter.wackeln, .roboter.jubel { animation: none; }
+}

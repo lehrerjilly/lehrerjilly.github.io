@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Fehler finden</title>
+<link rel="stylesheet" href="roboter.css">
+</head>
+<body>
+<div id="app"></div>
+<script>
+const MODUS = "fehler";
+const TITEL = "🐞 Fehler finden";
+
+// ====== HIER KANNST DU EIGENE LEVEL EINTRAGEN ======
+// R = Roboter, Z = Batterie, # = Stein, D = Diamant, . = frei
+// programm: das FEHLERHAFTE Programm, das die Kinder reparieren sollen
+//   "R" = rechts, "L" = links, "O" = hoch, "U" = runter
+//   ["R", 4]            = 4× rechts
+//   {block:["R","U"], n:4} = Muster-Block 4× wiederholen
+// fehler: wie viele Fehler versteckt sind
+const LEVEL = [
+  { stufe: 1, fehler: 1, programm: ["R", "R", "O", "R"], karte: [
+    ".....",
+    "R...Z",
+    "....."] },
+  { stufe: 1, fehler: 1, programm: ["R", "R", "R", "R", "U", "R"], karte: [
+    "R....",
+    ".....",
+    "....Z"] },
+  { stufe: 1, fehler: 1, programm: ["R", "O", "R", "R", "O", "R"], karte: [
+    ".....",
+    "R.#.Z",
+    "....."] },
+  { stufe: 2, fehler: 1, programm: ["U", "U", "R", "R", "R", "O", "U", "R", "R", "U", "U"], karte: [
+    "R.#...",
+    "..#.#.",
+    "....#Z"] },
+  { stufe: 2, fehler: 2, programm: ["R", "U", "R", "R", "O", "R"], karte: [
+    "..D..",
+    "R...Z",
+    "....."] },
+  { stufe: 2, fehler: 1, programm: [["R", 4], ["U", 2], ["L", 3], ["U", 2], ["R", 4]], karte: [
+    "R....",
+    "####.",
+    ".....",
+    ".####",
+    "....Z"] },
+  { stufe: 3, fehler: 2, programm: [["U", 2], ["R", 5], ["U", 2]], karte: [
+    "R...#..",
+    "....#..",
+    ".......",
+    "....#.Z"] },
+  { stufe: 3, fehler: 1, programm: [{ block: ["U", "R"], n: 4 }], karte: [
+    "R.###",
+    "#..##",
+    "##..#",
+    "###..",
+    "####Z"] }
+];
+</script>
+<script src="roboter.js"></script>
+</body>
+</html>
