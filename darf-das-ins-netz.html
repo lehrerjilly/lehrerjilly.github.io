@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Darf das ins Netz?</title>
+<style>
+  :root {
+    --bg: #f4f7fb;
+    --text: #1f2a37;
+    --card: #ffffff;
+    --ok: #2e9d5b;
+    --ok-light: #dff4e7;
+    --no: #d64545;
+    --no-light: #fbe3e3;
+    --accent: #3b6fd8;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 16px; user-select: none; -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  h1 { font-size: 2rem; margin: 8px 0 4px; text-align: center; }
+  .sub { font-size: 1.2rem; margin: 0 0 12px; text-align: center; }
+  .progress { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; justify-content: center; }
+  .dot { width: 18px; height: 18px; border-radius: 50%; background: #cfd8e3; }
+  .dot.done { background: var(--ok); }
+  .dot.now { background: var(--accent); transform: scale(1.25); }
+
+  .stage { width: 100%; max-width: 700px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .card-area { height: 230px; display: flex; align-items: center; justify-content: center; width: 100%; }
+  .card {
+    background: var(--card); border-radius: 24px; width: 280px; min-height: 190px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 16px; text-align: center; cursor: grab; touch-action: none;
+    position: relative; transition: transform .25s;
+  }
+  .card.dragging { transition: none; cursor: grabbing; box-shadow: 0 12px 28px rgba(0,0,0,.2); }
+  .card .emoji { font-size: 4.5rem; line-height: 1.1; }
+  .card .label { font-size: 1.5rem; font-weight: bold; margin-top: 8px; }
+  .speak {
+    position: absolute; top: 8px; right: 8px; border: none; background: #eef2f8;
+    border-radius: 50%; width: 44px; height: 44px; font-size: 1.4rem; cursor: pointer;
+  }
+  .shake { animation: shake .45s; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-14px); } 40% { transform: translateX(14px); }
+    60% { transform: translateX(-10px); } 80% { transform: translateX(10px); }
+  }
+  .fly-ok { transform: translate(-120px, 220px) scale(.3) !important; opacity: 0; transition: all .5s ease-in; }
+  .fly-no { transform: translate(120px, 220px) scale(.3) !important; opacity: 0; transition: all .5s ease-in; }
+
+  .feedback { min-height: 64px; font-size: 1.25rem; text-align: center; margin: 8px 0; padding: 8px 12px; border-radius: 12px; max-width: 600px; }
+  .feedback.good { background: var(--ok-light); color: #1c6b3c; }
+  .feedback.bad { background: var(--no-light); color: #9c2a2a; }
+
+  .boxes { display: flex; gap: 16px; width: 100%; justify-content: center; }
+  .box {
+    flex: 1; max-width: 300px; min-height: 150px; border-radius: 24px; border: 4px dashed;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: bold; cursor: pointer; padding: 12px; text-align: center;
+    transition: transform .15s, background .15s;
+  }
+  .box .big { font-size: 3rem; }
+  .box.ok { border-color: var(--ok); background: var(--ok-light); color: #1c6b3c; }
+  .box.no { border-color: var(--no); background: var(--no-light); color: #9c2a2a; }
+  .box.hover { transform: scale(1.06); border-style: solid; }
+  .hint-text { font-size: 1rem; color: #5a6675; margin-top: 12px; text-align: center; }
+
+  .end { display: none; text-align: center; margin-top: 24px; }
+  .end .stars { font-size: 3.5rem; margin: 12px 0; }
+  .end p { font-size: 1.4rem; }
+  .btn {
+    background: var(--accent); color: #fff; border: none; border-radius: 16px;
+    font-size: 1.4rem; padding: 14px 28px; cursor: pointer; margin-top: 12px;
+  }
+</style>
+</head>
+<body>
+  <a href="social-media.html" aria-label="Zur Übersicht" style="position:absolute;top:16px;left:16px;width:48px;height:48px;border-radius:50%;background:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.12)">🏠</a>
+  <h1>Darf das ins Netz? 🌐</h1>
+  <p class="sub">Was darfst du im Internet verraten?</p>
+  <div class="progress" id="progress"></div>
+
+  <div class="stage" id="stage">
+    <div class="card-area" id="cardArea"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="boxes">
+      <div class="box ok" id="boxOk" data-answer="ok"><span class="big">✅</span>Das ist okay</div>
+      <div class="box no" id="boxNo" data-answer="no"><span class="big">⛔</span>Lieber nicht</div>
+    </div>
+    <p class="hint-text">Schiebe die Karte in ein Feld – oder tippe auf ein Feld.</p>
+  </div>
+
+  <div class="end" id="end">
+    <h2>Geschafft! 🎉</h2>
+    <div class="stars" id="stars"></div>
+    <p id="score"></p>
+    <p>Merke: <b>Adresse, Telefonnummer und Passwort</b> bleiben geheim!</p>
+    <button class="btn" id="again">Nochmal spielen</button>
+  </div>
+
+<script>
+const ITEMS = [
+  { e: "🎨", t: "Deine Lieblingsfarbe", ok: true,  h: "Eine Farbe verrät nicht, wer du bist oder wo du wohnst." },
+  { e: "🐶", t: "Dein Lieblingstier", ok: true,  h: "Das ist harmlos. Niemand kann dich damit finden." },
+  { e: "⚽", t: "Dein Hobby", ok: true,  h: "Ein Hobby allein verrät nicht, wo du bist." },
+  { e: "🍕", t: "Dein Lieblingsessen", ok: true,  h: "Das ist okay. Damit kann niemand etwas Schlimmes machen." },
+  { e: "🏠", t: "Deine Adresse", ok: false, h: "Fremde könnten sonst wissen, wo du wohnst." },
+  { e: "📱", t: "Deine Handynummer", ok: false, h: "Fremde könnten dich sonst anrufen oder dir schreiben." },
+  { e: "🔑", t: "Dein Passwort", ok: false, h: "Ein Passwort ist geheim – auch vor Freunden!" },
+  { e: "🏫", t: "Der Name deiner Schule", ok: false, h: "Fremde könnten sonst herausfinden, wo du jeden Tag bist." },
+  { e: "📍", t: "Wo du gerade bist", ok: false, h: "Fremde wüssten sonst genau, wo du gerade bist." },
+  { e: "🎂", t: "Dein Geburtsdatum", ok: false, h: "Damit können Fremde viel über dich herausfinden." }
+];
+
+let order = [], idx = 0, firstTry = 0, triedWrong = false, busy = false;
+const $ = id => document.getElementById(id);
+const cardArea = $("cardArea"), feedback = $("feedback");
+const boxOk = $("boxOk"), boxNo = $("boxNo");
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function speak(text) {
+  try {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "de-DE"; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+function renderProgress() {
+  const p = $("progress"); p.innerHTML = "";
+  order.forEach((_, i) => {
+    const d = document.createElement("div");
+    d.className = "dot" + (i < idx ? " done" : i === idx ? " now" : "");
+    p.appendChild(d);
+  });
+}
+
+function start() {
+  order = shuffle(ITEMS.slice()); idx = 0; firstTry = 0;
+  $("end").style.display = "none"; $("stage").style.display = "flex";
+  showCard();
+}
+
+function showCard() {
+  triedWrong = false; busy = false;
+  feedback.textContent = ""; feedback.className = "feedback";
+  renderProgress();
+  const it = order[idx];
+  cardArea.innerHTML = "";
+  const c = document.createElement("div");
+  c.className = "card"; c.id = "card";
+  c.innerHTML = `<button class="speak" aria-label="Vorlesen">🔊</button>
+    <div class="emoji">${it.e}</div><div class="label">${it.t}</div>`;
+  c.querySelector(".speak").addEventListener("pointerdown", ev => ev.stopPropagation());
+  c.querySelector(".speak").addEventListener("click", ev => { ev.stopPropagation(); speak(it.t); });
+  cardArea.appendChild(c);
+  enableDrag(c);
+}
+
+function answer(choice) {
+  if (busy) return;
+  const it = order[idx];
+  const correct = (choice === "ok") === it.ok;
+  const c = $("card");
+  if (correct) {
+    busy = true;
+    if (!triedWrong) firstTry++;
+    feedback.className = "feedback good";
+    feedback.textContent = "Richtig! 👍 " + it.h;
+    speak("Richtig! " + it.h);
+    c.style.transform = "";
+    requestAnimationFrame(() => c.classList.add(choice === "ok" ? "fly-ok" : "fly-no"));
+    setTimeout(() => {
+      idx++;
+      if (idx < order.length) showCard(); else finish();
+    }, 2600);
+  } else {
+    triedWrong = true;
+    feedback.className = "feedback bad";
+    feedback.textContent = "Überleg nochmal! 🤔 " + it.h;
+    speak("Überleg nochmal. " + it.h);
+    c.style.transform = "";
+    c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake");
+  }
+}
+
+function finish() {
+  renderProgress();
+  $("stage").style.display = "none"; $("end").style.display = "block";
+  const n = order.length;
+  const stars = firstTry >= n - 1 ? 3 : firstTry >= n - 4 ? 2 : 1;
+  $("stars").textContent = "⭐".repeat(stars);
+  $("score").textContent = `Du hattest ${firstTry} von ${n} Karten gleich beim ersten Mal richtig.`;
+  speak("Geschafft! Super gemacht!");
+}
+
+function overBox(x, y) {
+  for (const b of [boxOk, boxNo]) {
+    const r = b.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return b;
+  }
+  return null;
+}
+
+function enableDrag(c) {
+  let sx = 0, sy = 0, dragging = false, moved = false;
+  c.addEventListener("pointerdown", e => {
+    if (busy) return;
+    dragging = true; moved = false; sx = e.clientX; sy = e.clientY;
+    c.setPointerCapture(e.pointerId); c.classList.add("dragging");
+  });
+  c.addEventListener("pointermove", e => {
+    if (!dragging) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 6) moved = true;
+    c.style.transform = `translate(${dx}px, ${dy}px) rotate(${dx / 25}deg)`;
+    const b = overBox(e.clientX, e.clientY);
+    boxOk.classList.toggle("hover", b === boxOk);
+    boxNo.classList.toggle("hover", b === boxNo);
+  });
+  const end = e => {
+    if (!dragging) return;
+    dragging = false; c.classList.remove("dragging");
+    boxOk.classList.remove("hover"); boxNo.classList.remove("hover");
+    const b = moved ? overBox(e.clientX, e.clientY) : null;
+    if (b) answer(b.dataset.answer); else c.style.transform = "";
+  };
+  c.addEventListener("pointerup", end);
+  c.addEventListener("pointercancel", end);
+}
+
+boxOk.addEventListener("click", () => answer("ok"));
+boxNo.addEventListener("click", () => answer("no"));
+$("again").addEventListener("click", start);
+start();
+</script>
+</body>
+</html>
