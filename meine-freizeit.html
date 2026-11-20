@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Meine Freizeit</title>
+<style>
+:root{--bg:#f4f7fb;--text:#1f2a37;--card:#fff;--ok:#2e9d5b;--ok-light:#dff4e7;--no:#d64545;--no-light:#fbe3e3;--accent:#3b6fd8;--accent-light:#e3ecfb;--leer:#dde4ee}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;font-size:1.2rem;padding:16px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.wrap{max-width:700px;margin:0 auto;text-align:center}
+.top{display:flex;justify-content:space-between}
+.home{width:48px;height:48px;border-radius:50%;border:none;background:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.12);cursor:pointer}
+h1{font-size:2rem;margin:4px 0}
+h2{font-size:1.6rem;margin:8px 0}
+.sub{margin:0 0 12px}
+.progress{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap;justify-content:center}
+.dot{width:18px;height:18px;border-radius:50%;background:#cfd8e3}
+.dot.done{background:var(--ok)}
+.dot.now{background:var(--accent);transform:scale(1.25)}
+.card{background:var(--card);border-radius:24px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:16px 56px;position:relative;margin:0 auto 12px;max-width:520px}
+.card .emoji{font-size:4rem;line-height:1.1}
+.card .label{font-size:1.4rem;font-weight:bold;margin-top:8px}
+.card .zeit{font-size:1.1rem;color:#5a6675;margin-top:4px}
+.speak{position:absolute;top:8px;right:8px;border:none;background:#eef2f8;border-radius:50%;width:44px;height:44px;font-size:1.4rem;cursor:pointer}
+.q{font-size:1.3rem;font-weight:bold;margin:12px 0}
+.opts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.opt{flex:1;min-width:120px;max-width:200px;min-height:96px;border-radius:20px;border:4px solid var(--accent);background:var(--accent-light);color:#1d3f8a;font:inherit;font-size:1.2rem;font-weight:bold;padding:10px;cursor:pointer}
+.opt .big{font-size:2.6rem;display:block;line-height:1.1}
+.opt.right{border-color:var(--ok);background:var(--ok-light);color:#1c6b3c}
+.feedback{min-height:56px;margin:12px auto;padding:10px 12px;border-radius:12px;max-width:600px;position:sticky;bottom:8px}
+.feedback:empty{min-height:0;padding:0}
+.feedback.good{background:var(--ok-light);color:#1c6b3c}
+.feedback.bad{background:var(--no-light);color:#9c2a2a}
+.feedback.info{background:#fff4d6;color:#7a5a00}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:16px;font:inherit;font-size:1.4rem;padding:14px 28px;cursor:pointer;margin-top:8px;text-decoration:none}
+.btn.alt{background:#fff;color:var(--accent);border:3px solid var(--accent)}
+.stars{font-size:3.5rem;margin:12px 0}
+.tip{background:var(--accent-light);border:3px solid var(--accent);border-radius:16px;padding:10px;max-width:560px;margin:12px auto}
+.pe{font-size:2.2rem}
+
+/* Zeile mit + und – */
+.step{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:8px 12px;margin:8px auto;max-width:560px;text-align:left;border-left:10px solid var(--farbe)}
+.step .name{flex:1;min-width:0}
+.step .name small{display:block;font-size:.8rem;color:#5a6675}
+.step button{width:52px;height:52px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:1.8rem;cursor:pointer;flex-shrink:0}
+.step button:disabled{opacity:.3}
+.step .val{min-width:92px;text-align:center;font-weight:bold;font-size:1rem}
+
+/* Zeit-Streifen: 10 Kästchen = 5 Stunden */
+.streifen-box{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0 6px;margin:0 auto 4px;max-width:600px}
+.streifen-titel{font-weight:bold;margin-bottom:6px}
+.streifen{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.stunde{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:#fff;border-radius:12px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.kasten{height:52px;border-radius:9px;background:var(--leer);display:flex;align-items:center;justify-content:center;font-size:1.5rem;transition:background .2s}
+.uhr{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;font-size:.85rem;color:#5a6675;margin-top:3px}
+.rest{font-size:1.3rem;font-weight:bold;margin:6px 0 0}
+.rest.voll{color:var(--ok)}
+
+/* Schaubild */
+.schaubild{background:#fff;border-radius:24px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:16px;margin:12px auto;max-width:600px}
+.kuchen{width:100%;max-width:300px;display:block;margin:0 auto}
+.kuchen text{font-family:inherit}
+.paar{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.paar .kuchen{max-width:240px}
+.paar h3{margin:4px 0;font-size:1.2rem}
+.legende{list-style:none;padding:0;margin:12px 0 0;text-align:left}
+.legende li{display:flex;align-items:center;gap:10px;padding:8px 6px;border-top:2px solid #eef2f8}
+.legende .farbe{width:22px;height:22px;border-radius:6px;flex-shrink:0}
+.legende .name{flex:1;min-width:0}
+.legende .wert{font-weight:bold;font-size:1rem;white-space:nowrap}
+.legende .note{font-size:1.5rem;white-space:nowrap}
+.teilung{display:flex;height:48px;border-radius:14px;overflow:hidden;margin:8px 0 4px;font-weight:bold;font-size:1.5rem}
+.teilung div{display:flex;align-items:center;justify-content:center;color:#fff;min-width:0;white-space:nowrap;overflow:hidden}
+.teilung .bs{background:#3b6fd8}
+.teilung .oh{background:#2e9d5b}
+.teilung-text{display:flex;justify-content:space-between;font-size:1rem;gap:8px}
+.auswertung{text-align:left;max-width:600px;margin:12px auto;display:grid;gap:8px}
+.auswertung p{margin:0;background:#fff;border-radius:14px;padding:10px 12px}
+.regeln{list-style:none;padding:0;max-width:560px;margin:8px auto;text-align:left}
+.regeln li{background:#fff;border-radius:12px;padding:8px 12px;margin:6px 0}
+.regeln li.on{background:var(--ok-light)}
+@media (max-width:480px){
+  .card{padding:16px 48px}
+  .kasten{height:40px;font-size:1.1rem}
+  .step{padding:8px;gap:6px}
+  .step .pe{font-size:1.7rem}
+  .step .name{font-size:1.05rem}
+  .step button{width:44px;height:44px;font-size:1.5rem}
+  .step .val{min-width:64px;font-size:.9rem}
+  .paar{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="home" href="social-media.html" aria-label="Zur Übersicht">🏠</a><button class="home" id="sound" aria-label="Ton an oder aus">🔊</button></div>
+  <h1>Meine Freizeit 🕔</h1>
+  <p class="sub">Du hast 5 Stunden frei. Was machst du?</p>
+  <div id="levels">
+    <p class="q">Wähle aus:</p>
+    <div class="opts"><button class="opt" id="easy">⭐<br>Leicht</button><button class="opt" id="hard">⭐⭐⭐<br>Schwer</button></div>
+  </div>
+  <div id="game" hidden>
+    <div class="progress" id="progress"></div>
+    <div id="main"></div>
+    <div class="feedback" id="feedback"></div>
+    <div id="nav"></div>
+  </div>
+  <div id="end" hidden>
+    <h2>Geschafft! 🎉</h2>
+    <div class="stars" id="stars"></div>
+    <p id="score"></p>
+    <div id="endchart"></div>
+    <p id="merke"></p>
+    <button class="btn" id="again">Nochmal spielen</button>
+    <p><a class="btn alt" href="social-media.html">Zur Übersicht</a></p>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let soundOn = true;
+function speak(text, force) {
+  if (!soundOn && !force) return;
+  try {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    let clean = text;
+    try { clean = text.replace(/\p{Extended_Pictographic}|️|‍/gu, ""); } catch (e) {}
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang = "de-DE"; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+const App = {
+  cfg: null, level: 1,
+  init(cfg) {
+    this.cfg = cfg;
+    $("easy").onclick = () => this.begin(1);
+    $("hard").onclick = () => this.begin(2);
+    $("again").onclick = () => this.menu();
+    $("sound").onclick = () => {
+      soundOn = !soundOn;
+      $("sound").textContent = soundOn ? "🔊" : "🔇";
+      try { if (!soundOn) speechSynthesis.cancel(); } catch (e) {}
+    };
+    this.menu();
+  },
+  menu() { $("levels").hidden = false; $("game").hidden = true; $("end").hidden = true; window.scrollTo(0, 0); },
+  begin(level) {
+    this.level = level;
+    $("levels").hidden = true; $("end").hidden = true; $("game").hidden = false;
+    $("main").innerHTML = ""; $("progress").innerHTML = "";
+    this.clear();
+    this.cfg.start(level);
+  },
+  progress(i, n) {
+    const p = $("progress"); p.innerHTML = "";
+    for (let k = 0; k < n; k++) {
+      const d = document.createElement("div");
+      d.className = "dot" + (k < i ? " done" : k === i ? " now" : "");
+      p.appendChild(d);
+    }
+  },
+  say(kind, text) {
+    const f = $("feedback");
+    f.className = "feedback " + (kind === true ? "good" : kind === false ? "bad" : "info");
+    f.textContent = text;
+    speak(text);
+  },
+  clear() { const f = $("feedback"); f.className = "feedback"; f.textContent = ""; $("nav").innerHTML = ""; },
+  next(fn, label) {
+    const n = $("nav");
+    n.innerHTML = '<button class="btn"></button>';
+    n.firstChild.textContent = label || "Weiter ➡";
+    n.firstChild.onclick = fn;
+  },
+  finish(stars, text, chartHtml) {
+    $("game").hidden = true; $("end").hidden = false;
+    $("stars").textContent = "⭐".repeat(stars);
+    $("score").textContent = text;
+    $("endchart").innerHTML = chartHtml || "";
+    $("merke").innerHTML = this.cfg.merke;
+    window.scrollTo(0, 0);
+    speak("Geschafft! Super gemacht!");
+  }
+};
+</script>
+<script>
+/* ====== HIER KANNST DU DIE TÄTIGKEITEN ÄNDERN ======
+   e = Bild, t = Name, f = Farbe im Schaubild
+   bs: true  = Bildschirm-Zeit
+   art: "bewegung" oder "menschen" (wird im schweren Level geprüft)
+   schwer: true = gibt es nur im schweren Level            */
+const TAETIGKEITEN = [
+  { e: "📲", t: "iPad",                f: "#3b6fd8", bs: true },
+  { e: "📱", t: "Handy",               f: "#6a4fd1", bs: true },
+  { e: "💬", t: "Social Media",        f: "#b545a8", bs: true },
+  { e: "🎮", t: "Zocken",              f: "#1590a8", bs: true, schwer: true },
+  { e: "📺", t: "Fernsehen",           f: "#5f6f94", bs: true, schwer: true },
+  { e: "👨‍👩‍👧", t: "Zeit mit den Eltern", f: "#e07b1a", art: "menschen" },
+  { e: "👫", t: "Freunde treffen",     f: "#d4a106", art: "menschen" },
+  { e: "⚽", t: "Draußen und Sport",   f: "#2e9d5b", art: "bewegung" },
+  { e: "🎨", t: "Hobby",               f: "#d0573a", schwer: true },
+  { e: "📖", t: "Lesen und Ausruhen",  f: "#7f8f2e", schwer: true }
+];
+const KAESTCHEN = 10; // 10 × 30 Minuten = 5 Stunden
+/* =================================================== */
+
+function fmt(v) {
+  const h = Math.floor(v / 2), m = v % 2;
+  if (!h && !m) return "0 Min.";
+  return ((h ? h + " Std. " : "") + (m ? "30 Min." : "")).trim();
+}
+function sum(rows) { return rows.reduce((a, r) => a + r.v, 0); }
+function bsSumme(rows) { return rows.filter(r => r.bs).reduce((a, r) => a + r.v, 0); }
+
+/* ---------- Planen: + und – mit Zeit-Streifen ---------- */
+function planen(rows, cfg) {
+  const main = $("main");
+  main.innerHTML =
+    (cfg.oben || "") +
+    '<div class="streifen-box"><div class="streifen-titel">⏰ Deine 5 Stunden</div>' +
+    '<div class="streifen" id="streifen"></div>' +
+    '<div class="uhr"><span>1 Std.</span><span>2 Std.</span><span>3 Std.</span><span>4 Std.</span><span>5 Std.</span></div>' +
+    '<p class="rest" id="rest"></p></div>' +
+    '<p class="q">' + cfg.frage + '</p><div id="rows"></div>' +
+    (cfg.unten || "") +
+    '<p><button class="btn" id="fertig">' + (cfg.knopf || "Fertig ✔") + "</button></p>";
+
+  const streifen = $("streifen");
+  const kaesten = [];
+  for (let s = 0; s < KAESTCHEN / 2; s++) {
+    const st = document.createElement("div");
+    st.className = "stunde";
+    for (let k = 0; k < 2; k++) {
+      const d = document.createElement("div");
+      d.className = "kasten";
+      st.appendChild(d);
+      kaesten.push(d);
+    }
+    streifen.appendChild(st);
+  }
+
+  const zeilen = [];
+  rows.forEach(r => {
+    const d = document.createElement("div");
+    d.className = "step";
+    d.style.setProperty("--farbe", r.f);
+    d.innerHTML = '<span class="pe">' + r.e + '</span><span class="name">' + r.t +
+      (r.bs ? "<small>📺 Bildschirm</small>" : "<small>ohne Bildschirm</small>") +
+      '</span><button aria-label="weniger">–</button><span class="val"></span><button aria-label="mehr">+</button>';
+    const [minus, plus] = d.querySelectorAll("button");
+    minus.onclick = () => { if (r.v > 0) { r.v--; neu(); } };
+    plus.onclick = () => {
+      if (sum(rows) < KAESTCHEN) { r.v++; neu(); }
+      else App.say("info", "Alle 5 Stunden sind schon verplant. Nimm erst woanders Zeit weg.");
+    };
+    zeilen.push({ r, minus, plus, val: d.querySelector(".val") });
+    $("rows").appendChild(d);
+  });
+
+  let erstesMal = true;
+  function neu() {
+    const s = sum(rows);
+    let k = 0;
+    rows.forEach(r => {
+      for (let i = 0; i < r.v; i++, k++) {
+        kaesten[k].style.background = r.f;
+        kaesten[k].textContent = r.e;
+      }
+    });
+    for (; k < KAESTCHEN; k++) { kaesten[k].style.background = ""; kaesten[k].textContent = ""; }
+    zeilen.forEach(z => {
+      z.val.textContent = fmt(z.r.v);
+      z.minus.disabled = z.r.v === 0;
+      z.plus.disabled = s >= KAESTCHEN;
+    });
+    if (!erstesMal) App.clear();
+    erstesMal = false;
+    const rest = KAESTCHEN - s;
+    $("rest").textContent = rest ? "Noch frei: " + fmt(rest) : "✅ Alle 5 Stunden sind verplant!";
+    $("rest").className = "rest" + (rest ? "" : " voll");
+    if (cfg.beiAenderung) cfg.beiAenderung();
+  }
+  neu();
+
+  $("fertig").onclick = () => {
+    const rest = KAESTCHEN - sum(rows);
+    if (rest > 0) { App.say("info", "Du hast noch " + fmt(rest) + " frei. Verteile alle 5 Stunden!"); return; }
+    cfg.fertig();
+  };
+}
+
+/* ---------- Bewerten: jede gewählte Tätigkeit einzeln ---------- */
+const GEFUEHL = [
+  { w: 3, e: "😃", t: "Gut" },
+  { w: 2, e: "😐", t: "Geht so" },
+  { w: 1, e: "😕", t: "Nicht gut" }
+];
+const SPASS = [
+  { w: 3, e: "⭐⭐⭐", t: "Viel Spaß" },
+  { w: 2, e: "⭐⭐", t: "Etwas Spaß" },
+  { w: 1, e: "⭐", t: "Wenig Spaß" }
+];
+
+function bewerten(rows, fragen, fertig) {
+  const liste = rows.filter(r => r.v > 0);
+  let i = 0, f = 0;
+  const main = $("main");
+  function zeigen() {
+    App.clear();
+    window.scrollTo(0, 0);
+    if (i >= liste.length) { $("progress").innerHTML = ""; fertig(); return; }
+    App.progress(i, liste.length);
+    const r = liste[i], fr = fragen[f];
+    main.innerHTML =
+      '<p class="q">Bewerte deine Freizeit!</p>' +
+      '<div class="card"><button class="speak" aria-label="Vorlesen">🔊</button>' +
+      '<div class="emoji">' + r.e + '</div><div class="label">' + r.t + "</div>" +
+      '<div class="zeit">' + fmt(r.v) + "</div></div>" +
+      '<p class="q">' + fr.q + '</p><div class="opts"></div>';
+    main.querySelector(".speak").onclick = () =>
+      speak(r.t + ", " + fmt(r.v).replace("Std.", "Stunden").replace("Min.", "Minuten") + ". " + fr.q, true);
+    const box = main.querySelector(".opts");
+    fr.opts.forEach(o => {
+      const b = document.createElement("button");
+      b.className = "opt";
+      b.innerHTML = '<span class="big">' + o.e + "</span>" + o.t;
+      b.onclick = () => {
+        r[fr.key] = o.w;
+        b.classList.add("right");
+        box.querySelectorAll("button").forEach(x => x.disabled = true);
+        setTimeout(() => {
+          f++;
+          if (f >= fragen.length) { f = 0; i++; }
+          zeigen();
+        }, 450);
+      };
+      box.appendChild(b);
+    });
+  }
+  zeigen();
+}
+
+/* ---------- Schaubild (Kuchen-Diagramm) ---------- */
+function kuchen(rows, mitte) {
+  const R = 15.915, C = 21; // Umfang = 100
+  let start = 0, teile = "", bilder = "";
+  rows.filter(r => r.v > 0).forEach(r => {
+    const p = r.v / KAESTCHEN * 100;
+    teile += '<circle cx="21" cy="21" r="' + R + '" fill="none" stroke="' + r.f + '" stroke-width="9" ' +
+      'stroke-dasharray="' + p + " " + (100 - p) + '" stroke-dashoffset="' + (25 - start) + '"></circle>';
+    const winkel = ((start + p / 2) / 100) * 2 * Math.PI - Math.PI / 2;
+    bilder += '<text x="' + (C + R * Math.cos(winkel)).toFixed(2) + '" y="' + (C + R * Math.sin(winkel)).toFixed(2) +
+      '" font-size="5" text-anchor="middle" dominant-baseline="central">' + r.e + "</text>";
+    start += p;
+  });
+  return '<svg class="kuchen" viewBox="0 0 42 42" role="img" aria-label="Schaubild deiner Freizeit">' +
+    '<circle cx="21" cy="21" r="' + R + '" fill="none" stroke="#dde4ee" stroke-width="9"></circle>' +
+    teile + bilder +
+    '<text x="21" y="19.5" font-size="4" font-weight="bold" text-anchor="middle" fill="#1f2a37">' + mitte[0] + "</text>" +
+    '<text x="21" y="24.5" font-size="3" text-anchor="middle" fill="#5a6675">' + mitte[1] + "</text></svg>";
+}
+
+function teilung(rows) {
+  const bs = bsSumme(rows), oh = KAESTCHEN - bs;
+  return '<div class="teilung">' +
+    (bs ? '<div class="bs" style="flex:' + bs + '">📺</div>' : "") +
+    (oh ? '<div class="oh" style="flex:' + oh + '">🌳</div>' : "") + "</div>" +
+    '<div class="teilung-text"><span>📺 Bildschirm: <b>' + fmt(bs) + "</b></span><span>🌳 Ohne: <b>" + fmt(oh) + "</b></span></div>";
+}
+
+function legende(rows, mitBewertung) {
+  return '<ul class="legende">' + rows.filter(r => r.v > 0)
+    .slice().sort((a, b) => b.v - a.v)
+    .map(r => '<li><span class="farbe" style="background:' + r.f + '"></span><span class="pe">' + r.e +
+      '</span><span class="name">' + r.t + '</span><span class="wert">' + fmt(r.v) + "</span>" +
+      (mitBewertung ? '<span class="note">' +
+        (r.spass ? SPASS.find(o => o.w === r.spass).e + " " : "") +
+        (r.gefuehl ? GEFUEHL.find(o => o.w === r.gefuehl).e : "") + "</span>" : "") +
+      "</li>").join("") + "</ul>";
+}
+
+function namen(liste) {
+  const n = liste.map(r => r.e + " " + r.t);
+  return n.length > 1 ? n.slice(0, -1).join(", ") + " und " + n[n.length - 1] : n[0];
+}
+
+/* Texte für die Auswertung */
+function auswertung(rows) {
+  const t = [];
+  const bs = bsSumme(rows);
+  if (bs === 0) t.push("📺 Du hast gar keine Bildschirm-Zeit geplant. Du hast viel Zeit für andere Sachen!");
+  else if (bs <= 3) t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das passt gut! 👍");
+  else if (bs <= 5) t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das ist schon viel. Für Kinder in deinem Alter reichen etwa 1½ Stunden am Tag.");
+  else t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das ist mehr als die Hälfte deiner Freizeit. Dein Körper braucht auch Bewegung, Freunde und Pausen.");
+
+  const gut = rows.filter(r => r.v > 0 && r.gefuehl === 3);
+  const schlecht = rows.filter(r => r.v > 0 && r.gefuehl === 1);
+  if (gut.length) t.push("😃 Das tut dir gut: " + namen(gut) + ".");
+  if (schlecht.length) t.push("😕 Das tut dir nicht so gut: " + namen(schlecht) + ". Vielleicht machst du das weniger?");
+
+  const viel = rows.filter(r => r.v >= 3 && r.gefuehl === 1);
+  if (viel.length) t.push("🤔 Für " + namen(viel) + " hast du viel Zeit geplant, obwohl es dir nicht gut tut.");
+
+  const spassAberNicht = rows.filter(r => r.v > 0 && r.spass === 3 && r.gefuehl === 1);
+  if (spassAberNicht.length) t.push("💡 " + namen(spassAberNicht) + " macht dir viel Spaß, tut dir aber nicht gut. Das kennen viele. Du kannst dir dafür eine feste Zeit ausmachen.");
+  return t;
+}
+
+/* ================= LEICHT ================= */
+function leicht() {
+  const rows = TAETIGKEITEN.filter(a => !a.schwer).map(a => Object.assign({ v: 0 }, a));
+  planen(rows, {
+    frage: "Was machst du in deiner Freizeit?<br>Tippe auf + und –.",
+    fertig: () => bewerten(rows, [{ key: "gefuehl", q: "Wie gut tut dir das?", opts: GEFUEHL }], () => ende(rows))
+  });
+  speak("Du hast 5 Stunden frei. Was machst du? Tippe auf plus und minus.");
+}
+function ende(rows) {
+  const html =
+    '<div class="schaubild"><h2>📊 Dein Schaubild</h2>' +
+    kuchen(rows, ["5 Std.", "Freizeit"]) + teilung(rows) + legende(rows, true) + "</div>" +
+    '<div class="auswertung">' + auswertung(rows).map(s => "<p>" + s + "</p>").join("") + "</div>";
+  App.finish(3, "So sieht deine Freizeit aus:", html);
+}
+
+/* ================= SCHWER ================= */
+const REGELN = [
+  { t: "📺 Höchstens 1½ Std. Bildschirm", ok: rows => bsSumme(rows) <= 3 },
+  { t: "⚽ Mindestens 1 Std. Bewegung", ok: rows => rows.filter(r => r.art === "bewegung").reduce((a, r) => a + r.v, 0) >= 2 },
+  { t: "👫 Mindestens 1 Std. mit Familie oder Freunden", ok: rows => rows.filter(r => r.art === "menschen").reduce((a, r) => a + r.v, 0) >= 2 }
+];
+function gutZeit(rows) { return rows.filter(r => r.gefuehl === 3).reduce((a, r) => a + r.v, 0); }
+
+function schwer() {
+  const rows = TAETIGKEITEN.map(a => Object.assign({ v: 0 }, a));
+  planen(rows, {
+    frage: "Plane deine Freizeit so, wie du sie wirklich machst.<br>Tippe auf + und –.",
+    fertig: () => bewerten(rows, [
+      { key: "spass", q: "Wie viel Spaß macht dir das?", opts: SPASS },
+      { key: "gefuehl", q: "Wie gut tut dir das?", opts: GEFUEHL }
+    ], () => zwischenstand(rows))
+  });
+  speak("Du hast 5 Stunden frei. Plane deine Freizeit so, wie du sie wirklich machst.");
+}
+
+function zwischenstand(rows) {
+  const main = $("main");
+  main.innerHTML =
+    '<div class="schaubild"><h2>📊 Dein Schaubild</h2>' +
+    kuchen(rows, ["5 Std.", "Freizeit"]) + teilung(rows) + legende(rows, true) + "</div>" +
+    '<div class="auswertung">' + auswertung(rows).map(s => "<p>" + s + "</p>").join("") + "</div>" +
+    '<div class="tip"><b>Deine Aufgabe:</b> Plane deine Freizeit noch einmal besser. Diese Regeln sollen stimmen:</div>' +
+    '<ul class="regeln">' + REGELN.map(r => "<li>" + r.t + "</li>").join("") + "</ul>";
+  App.next(() => verbessern(rows), "Plan verbessern ✏️");
+}
+
+function verbessern(vorher) {
+  App.clear();
+  window.scrollTo(0, 0);
+  const rows = vorher.map(r => Object.assign({}, r));
+  let versuche = 0;
+  planen(rows, {
+    oben: '<div class="tip">✏️ <b>Plan B:</b> Verbessere deinen Plan.<br>Wenn eine Regel stimmt, wird sie grün.</div>',
+    frage: "Ändere die Zeiten mit + und –.",
+    unten: '<ul class="regeln" id="regeln">' + REGELN.map(r => "<li>" + r.t + "</li>").join("") + "</ul>",
+    knopf: "Prüfen ✔",
+    beiAenderung: () => {
+      const li = document.querySelectorAll("#regeln li");
+      REGELN.forEach((r, i) => { if (li[i]) li[i].classList.toggle("on", r.ok(rows, vorher)); });
+    },
+    fertig: () => {
+      versuche++;
+      const falsch = REGELN.filter(r => !r.ok(rows, vorher));
+      if (falsch.length) {
+        App.say("info", "Fast! 🤔 Diese Regel stimmt noch nicht: " + falsch[0].t);
+        return;
+      }
+      App.say(true, "Super Plan! 👍 Alle Regeln stimmen.");
+      App.next(() => endeSchwer(vorher, rows, versuche), "Vorher und nachher ➡");
+    }
+  });
+}
+
+function endeSchwer(vorher, nachher, versuche) {
+  const bv = bsSumme(vorher), bn = bsSumme(nachher);
+  let satz;
+  if (bn < bv) satz = "📺 Vorher " + fmt(bv) + " Bildschirm, jetzt nur noch " + fmt(bn);
+  else satz = "📺 Deine Bildschirm-Zeit war schon vorher gut: " + fmt(bn);
+  satz = satz.replace(/\.?$/, ".");
+  const gv = gutZeit(vorher), gn = gutZeit(nachher);
+  const gutSatz = gn >= gv && gn > 0
+    ? "<p>😃 Für Sachen, die dir gut tun, hast du jetzt " + fmt(gn) + " Zeit" + (gn > gv ? " (vorher " + fmt(gv) + ")." : ".") + "</p>"
+    : "";
+  const html =
+    '<div class="schaubild"><h2>📊 Vorher und nachher</h2><div class="paar">' +
+    "<div><h3>Plan A (vorher)</h3>" + kuchen(vorher, ["5 Std.", "vorher"]) + "</div>" +
+    "<div><h3>Plan B (nachher)</h3>" + kuchen(nachher, ["5 Std.", "nachher"]) + "</div></div>" +
+    teilung(nachher) + legende(nachher, true) + "</div>" +
+    '<div class="auswertung"><p>' + satz + "</p>" + gutSatz +
+    "<p>🗣️ Erzähl jemandem aus deiner Klasse: Was willst du wirklich ändern?</p></div>";
+  App.finish(versuche === 1 ? 3 : versuche <= 3 ? 2 : 1, "Du hast deine Freizeit gut geplant.", html);
+}
+
+App.init({
+  merke: "Merke: <b>Du entscheidest über deine Freizeit.</b> Mach mehr von dem, was dir gut tut – mit und ohne Bildschirm.",
+  start(level) { if (level === 2) schwer(); else leicht(); }
+});
+</script>
+</body>
+</html>
