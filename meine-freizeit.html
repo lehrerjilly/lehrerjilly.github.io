@@ -78,7 +78,12 @@ h2{font-size:1.6rem;margin:8px 0}
 .teilung .oh{background:#2e9d5b}
 .teilung-text{display:flex;justify-content:space-between;font-size:1rem;gap:8px}
 .auswertung{text-align:left;max-width:600px;margin:12px auto;display:grid;gap:8px}
-.auswertung p{margin:0;background:#fff;border-radius:14px;padding:10px 12px}
+.auswertung p{margin:0;background:#fff;border-radius:14px;padding:10px 12px;border-left:10px solid #cfd8e3}
+.auswertung p.gruen{background:#dff4e7;border-color:#2e9d5b;color:#1c6b3c}
+.auswertung p.gelb{background:#fff4d6;border-color:#e6b100;color:#7a5a00}
+.auswertung p.rot{background:#fbe3e3;border-color:#d64545;color:#9c2a2a;font-weight:bold}
+.auswertung p.blau{background:#e3ecfb;border-color:#3b6fd8;color:#1d3f8a}
+.bs-wert.gruen{color:#1c6b3c}.bs-wert.gelb{color:#9a6f00}.bs-wert.rot{color:#c43a3a}
 .regeln{list-style:none;padding:0;max-width:560px;margin:8px auto;text-align:left}
 .regeln li{background:#fff;border-radius:12px;padding:8px 12px;margin:6px 0}
 .regeln li.on{background:var(--ok-light)}
@@ -371,7 +376,8 @@ function teilung(rows) {
   return '<div class="teilung">' +
     (bs ? '<div class="bs" style="flex:' + bs + '">📺</div>' : "") +
     (oh ? '<div class="oh" style="flex:' + oh + '">🌳</div>' : "") + "</div>" +
-    '<div class="teilung-text"><span>📺 Bildschirm: <b>' + fmt(bs) + "</b></span><span>🌳 Ohne: <b>" + fmt(oh) + "</b></span></div>";
+    '<div class="teilung-text"><span class="bs-wert ' + ampel(bs) + '">📺 Bildschirm: <b>' + fmt(bs) +
+    (bs > 5 ? " – zu viel!" : "") + "</b></span><span>🌳 Ohne: <b>" + fmt(oh) + "</b></span></div>";
 }
 
 function legende(rows, mitBewertung) {
@@ -391,24 +397,28 @@ function namen(liste) {
 }
 
 /* Texte für die Auswertung */
+function kaesten(liste) {
+  return '<div class="auswertung">' + liste.map(x => '<p class="' + x[0] + '">' + x[1] + "</p>").join("") + "</div>";
+}
+function ampel(bs) { return bs <= 3 ? "gruen" : bs <= 5 ? "gelb" : "rot"; }
 function auswertung(rows) {
   const t = [];
   const bs = bsSumme(rows);
-  if (bs === 0) t.push("📺 Du hast gar keine Bildschirm-Zeit geplant. Du hast viel Zeit für andere Sachen!");
-  else if (bs <= 3) t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das passt gut! 👍");
-  else if (bs <= 5) t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das ist schon viel. Für Kinder in deinem Alter reichen etwa 1½ Stunden am Tag.");
-  else t.push("📺 Du bist " + fmt(bs) + " am Bildschirm. Das ist mehr als die Hälfte deiner Freizeit. Dein Körper braucht auch Bewegung, Freunde und Pausen.");
+  if (bs === 0) t.push(["gruen", "📺 Du hast gar keine Bildschirm-Zeit geplant. Du hast viel Zeit für andere Sachen!"]);
+  else if (bs <= 3) t.push(["gruen", "📺 Du bist " + fmt(bs) + " am Bildschirm. Das passt gut! 👍"]);
+  else if (bs <= 5) t.push(["gelb", "⚠️ Du bist " + fmt(bs) + " am Bildschirm. Das ist schon viel. Für Kinder in deinem Alter reichen etwa 1½ Stunden am Tag."]);
+  else t.push(["rot", "🛑 Zu viel Bildschirm-Zeit! Du bist " + fmt(bs) + " am Bildschirm. Das ist mehr als die Hälfte deiner Freizeit. Dein Körper braucht auch Bewegung, Freunde und Pausen."]);
 
   const gut = rows.filter(r => r.v > 0 && r.gefuehl === 3);
   const schlecht = rows.filter(r => r.v > 0 && r.gefuehl === 1);
-  if (gut.length) t.push("😃 Das tut dir gut: " + namen(gut) + ".");
-  if (schlecht.length) t.push("😕 Das tut dir nicht so gut: " + namen(schlecht) + ". Vielleicht machst du das weniger?");
+  if (gut.length) t.push(["gruen", "😃 Das tut dir gut: " + namen(gut) + "."]);
+  if (schlecht.length) t.push(["gelb", "😕 Das tut dir nicht so gut: " + namen(schlecht) + ". Vielleicht machst du das weniger?"]);
 
   const viel = rows.filter(r => r.v >= 3 && r.gefuehl === 1);
-  if (viel.length) t.push("🤔 Für " + namen(viel) + " hast du viel Zeit geplant, obwohl es dir nicht gut tut.");
+  if (viel.length) t.push(["rot", "🤔 Für " + namen(viel) + " hast du viel Zeit geplant, obwohl es dir nicht gut tut."]);
 
   const spassAberNicht = rows.filter(r => r.v > 0 && r.spass === 3 && r.gefuehl === 1);
-  if (spassAberNicht.length) t.push("💡 " + namen(spassAberNicht) + " macht dir viel Spaß, tut dir aber nicht gut. Das kennen viele. Du kannst dir dafür eine feste Zeit ausmachen.");
+  if (spassAberNicht.length) t.push(["blau", "💡 " + namen(spassAberNicht) + " macht dir viel Spaß, tut dir aber nicht gut. Das kennen viele. Du kannst dir dafür eine feste Zeit ausmachen."]);
   return t;
 }
 
@@ -425,7 +435,7 @@ function ende(rows) {
   const html =
     '<div class="schaubild"><h2>📊 Dein Schaubild</h2>' +
     kuchen(rows, ["5 Std.", "Freizeit"]) + teilung(rows) + legende(rows, true) + "</div>" +
-    '<div class="auswertung">' + auswertung(rows).map(s => "<p>" + s + "</p>").join("") + "</div>";
+    kaesten(auswertung(rows));
   App.finish(3, "So sieht deine Freizeit aus:", html);
 }
 
@@ -454,7 +464,7 @@ function zwischenstand(rows) {
   main.innerHTML =
     '<div class="schaubild"><h2>📊 Dein Schaubild</h2>' +
     kuchen(rows, ["5 Std.", "Freizeit"]) + teilung(rows) + legende(rows, true) + "</div>" +
-    '<div class="auswertung">' + auswertung(rows).map(s => "<p>" + s + "</p>").join("") + "</div>" +
+    kaesten(auswertung(rows)) +
     '<div class="tip"><b>Deine Aufgabe:</b> Plane deine Freizeit noch einmal besser. Diese Regeln sollen stimmen:</div>' +
     '<ul class="regeln">' + REGELN.map(r => "<li>" + r.t + "</li>").join("") + "</ul>";
   App.next(() => verbessern(rows), "Plan verbessern ✏️");
@@ -495,15 +505,15 @@ function endeSchwer(vorher, nachher, versuche) {
   satz = satz.replace(/\.?$/, ".");
   const gv = gutZeit(vorher), gn = gutZeit(nachher);
   const gutSatz = gn >= gv && gn > 0
-    ? "<p>😃 Für Sachen, die dir gut tun, hast du jetzt " + fmt(gn) + " Zeit" + (gn > gv ? " (vorher " + fmt(gv) + ")." : ".") + "</p>"
+    ? '<p class="gruen">😃 Für Sachen, die dir gut tun, hast du jetzt ' + fmt(gn) + " Zeit" + (gn > gv ? " (vorher " + fmt(gv) + ")." : ".") + "</p>"
     : "";
   const html =
     '<div class="schaubild"><h2>📊 Vorher und nachher</h2><div class="paar">' +
     "<div><h3>Plan A (vorher)</h3>" + kuchen(vorher, ["5 Std.", "vorher"]) + "</div>" +
     "<div><h3>Plan B (nachher)</h3>" + kuchen(nachher, ["5 Std.", "nachher"]) + "</div></div>" +
     teilung(nachher) + legende(nachher, true) + "</div>" +
-    '<div class="auswertung"><p>' + satz + "</p>" + gutSatz +
-    "<p>🗣️ Erzähl jemandem aus deiner Klasse: Was willst du wirklich ändern?</p></div>";
+    '<div class="auswertung"><p class="gruen">' + satz + "</p>" + gutSatz +
+    '<p class="blau">🗣️ Erzähl jemandem aus deiner Klasse: Was willst du wirklich ändern?</p></div>';
   App.finish(versuche === 1 ? 3 : versuche <= 3 ? 2 : 1, "Du hast deine Freizeit gut geplant.", html);
 }
 
