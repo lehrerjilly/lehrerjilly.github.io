@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Was ist KI?</title>
+<style>
+:root{--bg:#f4f7fb;--text:#1f2a37;--card:#fff;--ok:#2e9d5b;--ok-light:#dff4e7;--no:#d64545;--no-light:#fbe3e3;--accent:#3b6fd8;--accent-light:#e3ecfb}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;font-size:1.2rem;padding:16px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.wrap{max-width:700px;margin:0 auto;text-align:center}
+.top{display:flex;justify-content:space-between}
+.home{width:48px;height:48px;border-radius:50%;border:none;background:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,.12);cursor:pointer}
+h1{font-size:2rem;margin:4px 0}
+.sub{margin:0 0 12px}
+.progress{display:flex;gap:8px;margin:0 0 16px;flex-wrap:wrap;justify-content:center}
+.dot{width:18px;height:18px;border-radius:50%;background:#cfd8e3}
+.dot.done{background:var(--ok)}
+.dot.now{background:var(--accent);transform:scale(1.25)}
+.card{background:var(--card);border-radius:24px;box-shadow:0 6px 18px rgba(0,0,0,.12);padding:16px 56px;position:relative;margin:0 auto 12px;max-width:520px}
+.card .who{font-size:1rem;color:#5a6675;text-align:left;margin-left:-40px;font-weight:bold}
+.card .emoji{font-size:4rem;line-height:1.1}
+.card .label{font-size:1.4rem;font-weight:bold;margin-top:8px}
+.speak{position:absolute;top:8px;right:8px;border:none;background:#eef2f8;border-radius:50%;width:44px;height:44px;font-size:1.4rem;cursor:pointer}
+.q{font-size:1.3rem;font-weight:bold;margin:12px 0}
+.opts{display:flex;gap:16px;justify-content:center}
+.opts.col{flex-direction:column;align-items:stretch;max-width:560px;margin:0 auto;gap:12px}
+.opt{flex:1;max-width:300px;min-height:90px;border-radius:20px;border:4px solid var(--accent);background:var(--accent-light);color:#1d3f8a;font:inherit;font-size:1.3rem;font-weight:bold;padding:12px;cursor:pointer}
+.opts.col .opt{max-width:none;min-height:64px;font-weight:normal;font-size:1.2rem;text-align:left}
+.opt.ok{border-color:var(--ok);background:var(--ok-light);color:#1c6b3c}
+.opt.no{border-color:var(--no);background:var(--no-light);color:#9c2a2a}
+.opt.right{border-color:var(--ok);background:var(--ok-light);color:#1c6b3c;font-weight:bold}
+.opt:disabled{opacity:.4}
+.opt.wrong{animation:shake .45s}
+.feedback{min-height:56px;margin:12px auto;padding:10px 12px;border-radius:12px;max-width:600px;position:sticky;bottom:8px}
+.feedback.good{background:var(--ok-light);color:#1c6b3c}
+.feedback.bad{background:var(--no-light);color:#9c2a2a}
+.feedback.info{background:#fff4d6;color:#7a5a00}
+.btn{display:inline-block;background:var(--accent);color:#fff;border:none;border-radius:16px;font:inherit;font-size:1.4rem;padding:14px 28px;cursor:pointer;margin-top:8px;text-decoration:none}
+.btn.alt{background:#fff;color:var(--accent);border:3px solid var(--accent)}
+.stars{font-size:3.5rem;margin:12px 0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-12px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(8px)}}
+.shake{animation:shake .45s}
+.count{font-weight:bold;color:var(--accent)}
+.feed{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
+.post{background:#fff;border:4px solid transparent;border-radius:18px;box-shadow:0 3px 10px rgba(0,0,0,.1);padding:12px 14px;text-align:left;cursor:pointer}
+.post .who{font-weight:bold;font-size:1rem;color:#5a6675;margin-bottom:6px}
+.tag{font-weight:normal;font-size:.8rem;color:#8a94a3;margin-left:6px}
+.post .row{display:flex;gap:12px;align-items:center}
+.pe{font-size:2.6rem}
+.post .why{font-size:1rem;margin-top:6px}
+.post.found{border-color:var(--ok);background:var(--ok-light)}
+.post.safe{opacity:.6;border-color:#cfd8e3}
+.warn{background:#fff4d6;border:3px solid #e6b100;border-radius:16px;padding:10px;max-width:560px;margin:0 auto 12px}
+.tip{background:var(--accent-light);border:3px solid var(--accent);border-radius:16px;padding:10px;max-width:560px;margin:12px auto}
+.pw{width:100%;max-width:520px;font:inherit;font-size:1.6rem;padding:14px;border-radius:16px;border:4px solid #cfd8e3;text-align:center;user-select:text;-webkit-user-select:text}
+.ampel{display:inline-flex;gap:10px;background:#2b3440;padding:10px 14px;border-radius:40px;margin:14px 0}
+.ampel i{width:40px;height:40px;border-radius:50%;background:#55606e}
+.ampel i.r{background:#e04b4b}
+.ampel i.y{background:#f2c230}
+.ampel i.g{background:#35c26e}
+.checks{list-style:none;padding:0;max-width:520px;margin:0 auto;text-align:left}
+.checks li{background:#fff;border-radius:12px;padding:8px 12px;margin:6px 0}
+.checks li.on{background:var(--ok-light)}
+.step{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:8px 12px;margin:8px auto;max-width:560px;text-align:left}
+.step .name{flex:1}
+.step button{width:52px;height:52px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:1.8rem;cursor:pointer;flex-shrink:0}
+.step .val{min-width:96px;text-align:center;font-weight:bold;font-size:1rem}
+.total{font-size:1.4rem;font-weight:bold;margin:12px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;max-width:640px;margin:0 auto}
+.tile{background:#fff;border:4px solid transparent;border-radius:18px;padding:12px;font:inherit;color:inherit;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.1);text-decoration:none;display:block;font-weight:bold}
+.tile .emoji{font-size:2.8rem;display:block}
+.tile.on{border-color:var(--ok);background:var(--ok-light)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="home" href="index.html" aria-label="Zur Übersicht">🏠</a><button class="home" id="sound" aria-label="Ton an oder aus">🔊</button></div>
+  <h1>Was ist KI? 🤖</h1>
+  <p class="sub">Finde heraus, was KI ist und wie sie lernt.</p>
+  <div id="levels">
+    <p class="q">Wähle aus:</p>
+    <div class="opts"><button class="opt" id="easy">👍👎<br>Teil 1:<br>KI oder nicht?</button><button class="opt" id="hard">🐶🤖<br>Teil 2:<br>KI lernt</button></div>
+  </div>
+  <div id="game" hidden>
+    <div class="progress" id="progress"></div>
+    <div id="main"></div>
+    <div class="feedback" id="feedback"></div>
+    <div id="nav"></div>
+  </div>
+  <div id="end" hidden>
+    <h2>Geschafft! 🎉</h2>
+    <div class="stars" id="stars"></div>
+    <p id="score"></p>
+    <p id="merke"></p>
+    <button class="btn" id="again">Nochmal spielen</button>
+    <p><a class="btn alt" href="index.html">Zur Übersicht</a></p>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+let soundOn = true;
+function speak(text, force) {
+  if (!soundOn && !force) return;
+  try {
+    if (!("speechSynthesis" in window)) return;
+    speechSynthesis.cancel();
+    let clean = text;
+    try { clean = text.replace(/\p{Extended_Pictographic}|\uFE0F|\u200D/gu, ""); } catch (e) {}
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang = "de-DE"; u.rate = 0.9;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+const App = {
+  cfg: null, level: 1,
+  init(cfg) {
+    this.cfg = cfg;
+    $("easy").onclick = () => this.begin(1);
+    $("hard").onclick = () => this.begin(2);
+    $("again").onclick = () => this.menu();
+    $("sound").onclick = () => {
+      soundOn = !soundOn;
+      $("sound").textContent = soundOn ? "🔊" : "🔇";
+      try { if (!soundOn) speechSynthesis.cancel(); } catch (e) {}
+    };
+    this.menu();
+  },
+  menu() { $("levels").hidden = false; $("game").hidden = true; $("end").hidden = true; },
+  begin(level) {
+    this.level = level;
+    $("levels").hidden = true; $("end").hidden = true; $("game").hidden = false;
+    $("main").innerHTML = ""; $("progress").innerHTML = "";
+    this.clear();
+    this.cfg.start(level);
+  },
+  progress(i, n) {
+    const p = $("progress"); p.innerHTML = "";
+    for (let k = 0; k < n; k++) {
+      const d = document.createElement("div");
+      d.className = "dot" + (k < i ? " done" : k === i ? " now" : "");
+      p.appendChild(d);
+    }
+  },
+  say(kind, text) {
+    const f = $("feedback");
+    f.className = "feedback " + (kind === true ? "good" : kind === false ? "bad" : "info");
+    f.textContent = text;
+    speak(text);
+  },
+  clear() { const f = $("feedback"); f.className = "feedback"; f.textContent = ""; $("nav").innerHTML = ""; },
+  next(fn, label) {
+    const n = $("nav");
+    n.innerHTML = '<button class="btn"></button>';
+    n.firstChild.textContent = label || "Weiter ➡";
+    n.firstChild.onclick = fn;
+  },
+  stars(first, n) { return first >= n - 1 ? 3 : first >= n / 2 ? 2 : 1; },
+  finish(stars, text) {
+    $("game").hidden = true; $("end").hidden = false;
+    $("stars").textContent = "⭐".repeat(stars);
+    $("score").textContent = text;
+    $("merke").innerHTML = this.cfg.merke;
+    window.scrollTo(0, 0);
+    speak("Geschafft! Super gemacht!");
+  }
+};
+
+/* Quiz: Karte + Antwort-Knöpfe, auch mit mehreren Schritten pro Karte */
+App.quiz = function (items) {
+  const order = shuffle(items.slice());
+  const main = $("main");
+  let idx = 0, first = 0;
+  const showItem = () => {
+    if (idx >= order.length) {
+      App.finish(App.stars(first, order.length),
+        "Du hattest " + first + " von " + order.length + " Aufgaben gleich beim ersten Mal richtig.");
+      return;
+    }
+    App.progress(idx, order.length);
+    const it = order[idx];
+    let clean = true, s = 0;
+    const showStep = () => {
+      App.clear();
+      const st = it.steps[s];
+      const opts = st.mix ? shuffle(st.opts.slice()) : st.opts;
+      main.innerHTML =
+        '<div class="card"><button class="speak" aria-label="Vorlesen">🔊</button>' +
+        (it.who ? '<div class="who">👤 ' + it.who + "</div>" : "") +
+        '<div class="emoji">' + it.e + '</div><div class="label">' + it.t + "</div></div>" +
+        (st.q ? '<p class="q">' + st.q + "</p>" : "") +
+        '<div class="opts' + (st.mix ? " col" : "") + '"></div>';
+      main.querySelector(".speak").onclick = () =>
+        speak([it.t, st.q || ""].concat(st.mix ? opts.map(o => o.t) : []).join(". "), true);
+      const box = main.querySelector(".opts");
+      let done = false;
+      opts.forEach(o => {
+        const b = document.createElement("button");
+        b.className = "opt" + (o.c ? " " + o.c : "");
+        b.textContent = o.t;
+        b.onclick = () => {
+          if (done) return;
+          if (o.ok) {
+            done = true;
+            b.classList.add("right");
+            box.querySelectorAll(".opt").forEach(x => { if (x !== b) x.disabled = true; });
+            App.say(true, "Richtig! 👍 " + (o.h || st.h || ""));
+            App.next(() => {
+              s++;
+              if (s < it.steps.length) showStep();
+              else { if (clean) first++; idx++; showItem(); }
+              window.scrollTo(0, 0);
+            });
+          } else {
+            clean = false;
+            b.classList.add("wrong");
+            b.disabled = true;
+            App.say(false, "Überleg nochmal! 🤔 " + (o.h || ""));
+          }
+        };
+        box.appendChild(b);
+      });
+    };
+    showStep();
+  };
+  showItem();
+};
+
+/* Finder: in einer Liste die richtigen Einträge antippen */
+App.finder = function (cfg) {
+  const main = $("main");
+  const items = cfg.mix === false ? cfg.items : shuffle(cfg.items.slice());
+  const need = items.filter(i => i.hit).length;
+  let found = 0, wrong = 0;
+  main.innerHTML = '<p class="q">' + cfg.intro + '</p><p class="count" id="count"></p><div class="feed"></div>';
+  const upd = () => { $("count").textContent = "Gefunden: " + found + " von " + need; };
+  upd();
+  const feed = main.querySelector(".feed");
+  items.forEach(it => {
+    const d = document.createElement("div");
+    d.className = "post";
+    d.innerHTML = '<div class="who">' + it.who + (it.tag ? ' <span class="tag">' + it.tag + "</span>" : "") +
+      '</div><div class="row"><span class="pe">' + it.e + '</span><span class="pt">' + it.t +
+      '</span></div><div class="why"></div>';
+    d.onclick = () => {
+      if (d.dataset.done || found === need) return;
+      d.dataset.done = "1";
+      d.querySelector(".why").textContent = it.h;
+      if (it.hit) {
+        found++; upd();
+        d.classList.add("found");
+        App.say(true, "Gefunden! 👍 " + it.h);
+        if (found === need) {
+          if (cfg.done) { App.next(cfg.done); return; }
+          App.next(() => App.finish(wrong === 0 ? 3 : wrong <= 2 ? 2 : 1,
+            wrong === 0 ? "Du hast alles ohne Fehler gefunden!"
+                        : "Du hast alles gefunden. Daneben getippt: " + wrong + " Mal."));
+        }
+      } else {
+        wrong++;
+        d.classList.add("safe", "shake");
+        App.say(false, cfg.miss + " " + it.h);
+      }
+    };
+    feed.appendChild(d);
+  });
+};
+</script>
+<script>
+const ja = (h) => ({ t: "👍 Ja, KI", ok: true, c: "ok", h });
+const nein = (h) => ({ t: "👎 Keine KI", ok: true, c: "no", h });
+const falschJa = (h) => ({ t: "👍 Ja, KI", c: "ok", h });
+const falschNein = (h) => ({ t: "👎 Keine KI", c: "no", h });
+const kiOderNicht = (e, t, istKi, hRichtig, hFalsch) => ({
+  e, t, steps: [{ q: "Ist das KI?", opts: istKi
+    ? [ja(hRichtig), falschNein(hFalsch)]
+    : [falschJa(hFalsch), nein(hRichtig)] }]
+});
+
+const TEIL1 = [
+  kiOderNicht("🗣️", "Du sagst zum Handy: „Wie wird das Wetter?“ Das Handy antwortet.", true,
+    "Der Sprach-Assistent versteht deine Sprache. Das ist KI.", "Das Handy versteht, was du sagst. Dafür braucht es KI."),
+  kiOderNicht("🧮", "Ein Taschenrechner rechnet 5 + 3.", false,
+    "Der Taschenrechner rechnet nur. Er lernt nichts dazu.", "Ein Taschenrechner folgt nur festen Regeln. Er lernt nichts."),
+  kiOderNicht("📱", "Das Handy erkennt dein Gesicht und schließt sich auf.", true,
+    "Das Handy erkennt dein Gesicht. Das ist KI.", "Gesichter erkennen kann nur eine KI."),
+  kiOderNicht("💡", "Du drückst den Schalter. Das Licht geht an.", false,
+    "Ein Lichtschalter ist keine KI. Er macht nur an und aus.", "Der Schalter denkt nicht nach. Er macht nur an und aus."),
+  kiOderNicht("🎬", "Die App schlägt dir Videos vor, die dir gefallen könnten.", true,
+    "Die App merkt sich, was du gerne schaust. Das ist KI.", "Die App lernt, was dir gefällt. Das ist KI."),
+  kiOderNicht("⏰", "Der Wecker klingelt jeden Morgen um 7 Uhr.", false,
+    "Der Wecker macht immer das Gleiche. Das ist keine KI.", "Der Wecker folgt nur einer Regel: 7 Uhr klingeln."),
+  kiOderNicht("🌍", "Eine App übersetzt einen Satz von Deutsch in Englisch.", true,
+    "Übersetzen ist schwer. Die App hat das mit KI gelernt.", "Die App hat mit ganz vielen Sätzen gelernt. Das ist KI."),
+  kiOderNicht("🚪", "Eine Tür im Supermarkt geht auf, wenn jemand davor steht.", false,
+    "Die Tür hat nur einen Sensor. Sie lernt nichts dazu.", "Die Tür merkt nur: Da ist jemand. Mehr nicht.")
+];
+
+const LERNEN = {
+  intro: "Bring der KI bei, was ein <b>Hund</b> ist! Tippe alle Hunde an. 🐶",
+  miss: "Das ist kein Hund! 🤔",
+  items: [
+    { who: "", e: "🐕", t: "Hund", hit: true, h: "Ja, ein Hund!" },
+    { who: "", e: "🐩", t: "Pudel", hit: true, h: "Ein Pudel ist auch ein Hund." },
+    { who: "", e: "🦮", t: "Blindenhund", hit: true, h: "Auch ein Hund." },
+    { who: "", e: "🐶", t: "Hunde-Kopf", hit: true, h: "Ein Hund von vorne." },
+    { who: "", e: "🐈", t: "Katze", hit: false, h: "Das ist eine Katze." },
+    { who: "", e: "🐄", t: "Kuh", hit: false, h: "Das ist eine Kuh." },
+    { who: "", e: "🐑", t: "Schaf", hit: false, h: "Das ist ein Schaf." },
+    { who: "", e: "🐇", t: "Hase", hit: false, h: "Das ist ein Hase." }
+  ]
+};
+
+const TEIL2 = [
+  { e: "🧒➡️🤖", t: "Ein Kind lernt „Hund“, weil es viele Hunde sieht.", steps: [{ q: "Wie lernt eine KI?", mix: true, opts: [
+    { t: "Genauso: Sie bekommt ganz viele Beispiele.", ok: true, h: "KI lernt aus vielen, vielen Beispielen." },
+    { t: "Sie weiß alles schon von Anfang an.", h: "Nein. Eine KI muss erst lernen." },
+    { t: "Sie geht in die Schule.", h: "Lustige Idee! Aber KI lernt mit Beispielen im Computer." }] }] },
+  { e: "🐺", t: "Die KI sieht einen Wolf und sagt: „Das ist ein Hund!“", steps: [{ q: "Hat die KI recht?", opts: [
+    { t: "👍 Ja", c: "ok", h: "Schau genau: Das ist ein Wolf." },
+    { t: "👎 Nein", ok: true, c: "no", h: "Die KI hat sich geirrt. Ein Wolf sieht einem Hund ähnlich." }] }] },
+  { e: "🤖💬", t: "Die KI sagt: „Ein Hund hat 6 Beine.“", steps: [{ q: "Stimmt das?", opts: [
+    { t: "👍 Ja", c: "ok", h: "Zähl mal nach: Ein Hund hat 4 Beine." },
+    { t: "👎 Nein", ok: true, c: "no", h: "Ein Hund hat 4 Beine. Auch KI macht Fehler!" }] }] },
+  { e: "🤖💬", t: "Die KI sagt: „Berlin ist die Hauptstadt von Deutschland.“", steps: [{ q: "Stimmt das?", opts: [
+    { t: "👍 Ja", ok: true, c: "ok", h: "Das stimmt. KI hat oft recht – aber nicht immer." },
+    { t: "👎 Nein", c: "no", h: "Doch, das stimmt. Berlin ist die Hauptstadt." }] }] },
+  { e: "🤔", t: "Die KI sagt dir etwas. Du bist nicht sicher, ob es stimmt.", steps: [{ q: "Was machst du?", mix: true, opts: [
+    { t: "Ich denke selbst nach und frage einen Erwachsenen.", ok: true, h: "Genau! Selbst nachdenken ist wichtig." },
+    { t: "Ich glaube alles, was die KI sagt.", h: "Vorsicht! KI kann sich irren." },
+    { t: "Ich frage die KI einfach nochmal.", h: "Die KI kann sich wieder irren. Frag lieber einen Menschen." }] }] }
+];
+
+App.init({
+  merke: "Merke: <b>KI lernt aus vielen Beispielen.</b> KI kann helfen – aber sie kann sich irren. <b>Selbst nachdenken!</b>",
+  start(level) {
+    if (level === 1) App.quiz(TEIL1);
+    else App.finder(Object.assign({ done: () => {
+      App.clear();
+      App.say(null, "Super! Jetzt kennt die KI Hunde. Aber macht sie auch Fehler?");
+      App.next(() => { App.clear(); App.quiz(TEIL2); }, "Weiter ➡");
+    } }, LERNEN));
+  }
+});
+</script>
+</body>
+</html>
